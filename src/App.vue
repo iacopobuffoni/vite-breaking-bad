@@ -2,8 +2,8 @@
 	import AppHeader from './components/AppHeader.vue';
 	import AppMain from './components/AppMain.vue';
 	import AppFooter from './components/AppFooter.vue';
-	import axios from 'axios';
 	import { store } from './store.js';
+	import axios from 'axios';
 	export default {
 		name: 'App',
   		components : {
@@ -16,16 +16,24 @@
 		data() {
 
 			return {
-				cards: [],
 				store
 			}
 
 		},
-
+		methods: {
+			getCards() {
+				axios.get('https://db.ygoprodeck.com/api/v7/cardinfo.php', {
+					params: {
+						archetype: store.selected
+					}
+				}).then((response) => {
+				this.store.cards = response.data.data;
+			});
+			}
+		},
 		created() {
 			axios.get('https://db.ygoprodeck.com/api/v7/cardinfo.php').then((response) => {
-				console.log(response.data.data.slice(0,20));
-				this.store.cards = response.data.data.slice(0,20);
+				this.store.cards = response.data.data;
 			});
 		}
 	
@@ -34,7 +42,7 @@
 
 <template>
   	<AppHeader/>
-	<AppMain :cardsList="store.cards" :cardsCount="store.cards.length"/>
+	<AppMain :cardsList="store.cards" :cardsCount="store.cards.length" @search="getCards"/>
 	<AppFooter/>
 </template>
 
